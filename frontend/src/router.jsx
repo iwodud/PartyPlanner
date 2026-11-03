@@ -5,6 +5,7 @@ import SignInPage from './components/SignInPage';
 import Dashboard from './components/Dashboard';
 import PrivateRoute from './components/PrivateRoute';
 import PublicRoute from './components/PublicRoute';
+import GroupPage from './components/GroupPage';
 
 export const router = createBrowserRouter([
     {path: "/", element: <App />},
@@ -23,6 +24,12 @@ export const router = createBrowserRouter([
     {path: "/dashboard", element: (
             <PrivateRoute>
                 <Dashboard />
+            </PrivateRoute>
+        ),
+    },
+    {path: "/groups/:id", element: (
+            <PrivateRoute>
+                <GroupPage />
             </PrivateRoute>
         ),
     },
