@@ -26,11 +26,15 @@ Treść błędu trafia do `error.message` w odpowiedzi `supabase-js`.
 
 ## Migracje
 
-Pliki w `supabase/migrations/` mają format `<timestamp>_<nazwa>.sql` i są stosowane w kolejności:
+Pliki w `supabase/migrations/` mają format `<timestamp>_<nazwa>.sql` i są stosowane w kolejności.
+
+Lokalnie (konfiguracja w `supabase/config.toml`) `npx supabase start` wgrywa je automatycznie, a `npx supabase db reset` czyści bazę i wgrywa je od nowa.
+
+Na wspólny projekt Supabase:
 
 ```bash
-supabase link --project-ref <project-ref>
-supabase db push
+npx supabase link --project-ref <project-ref>
+npx supabase db push
 ```
 
 Jeśli schemat początkowy był już wykonany ręcznie w SQL Editorze, uruchom tylko nowsze migracje (np. `20261103120000_fix_rls_and_groups.sql` i `20261103160000_group_invites.sql`).

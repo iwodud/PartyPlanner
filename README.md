@@ -29,11 +29,10 @@ Frontend potrzebuje adresu i klucza `anon` projektu Supabase. Możesz użyć wsp
 
 ### Wariant B – lokalny Supabase w Dockerze
 
-Przy uruchomionym Docker Desktop, w folderze `backend`:
+Przy uruchomionym Docker Desktop, w folderze `backend` (konfiguracja jest w `backend/supabase/config.toml`, `supabase init` nie jest potrzebne):
 
 ```bash
 cd backend
-npx supabase init     # tylko za pierwszym razem, tworzy supabase/config.toml
 npx supabase start    # pierwsze uruchomienie pobiera obrazy Dockera, migracje wgrywają się automatycznie
 npx supabase status   # pokazuje API URL i anon key
 ```
