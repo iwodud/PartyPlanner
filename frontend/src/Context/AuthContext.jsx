@@ -8,16 +8,28 @@ export const AuthContextProvider = ({children}) => {
 
     //Rejestracja
 
-    const signUpNewUser = async (email, password) => {
+    const signUpNewUser = async (email, password, displayName) => {
         const { data, error }= await supabase.auth.signUp({
-            email: email,
+            email: email.trim(),
             password: password,
+            options: {
+                // Trigger handle_new_user zapisuje display_name do tabeli profiles
+                data: { display_name: displayName.trim() },
+                emailRedirectTo: `${window.location.origin}/dashboard`,
+            },
         });
 
         if (error) {
             console.error("Coś poszło nie tak podczas rejestracji:", error);
             return { success: false, error };
         }
+
+        // Przy włączonym potwierdzaniu e-maila Supabase nie zwraca błędu dla istniejącego konta,
+        // tylko użytkownika bez tożsamości
+        if (data.user && data.user.identities?.length === 0) {
+            return { success: false, error: { code: 'user_already_exists' } };
+        }
+
         return {success: true, data}
     };
 
@@ -40,7 +52,7 @@ export const AuthContextProvider = ({children}) => {
     const signInUser = async(email, password) => {
         try {
             const { data, error} = await supabase.auth.signInWithPassword({
-                email: email,
+                email: email.trim(),
                 password: password
             });
 

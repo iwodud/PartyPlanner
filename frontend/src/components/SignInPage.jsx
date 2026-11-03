@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { UserAuth } from '../Context/AuthContext';
+import { isValidEmail } from '../utils/validation';
 
 const SignInPage = () => {
     const [email, setEmail] = useState(""); 
@@ -20,7 +21,7 @@ const SignInPage = () => {
             return
         }
 
-        if (!email.includes("@")) {
+        if (!isValidEmail(email)) {
             setError("Nieprawidłowy format adresu e-mail")
             return
         }
@@ -45,13 +46,16 @@ const SignInPage = () => {
                 setError("Nieprawidłowy e-mail lub hasło")
 
             } else if (result.error.code === 'email_not_confirmed') {
-                setError("«Adres e-mail nie został potwierdzony. Sprawdź skrzynkę.")
+                setError("Adres e-mail nie został potwierdzony. Sprawdź skrzynkę.")
+
+            } else if (result.error.code === 'over_request_rate_limit') {
+                setError("Zbyt wiele prób logowania. Spróbuj ponownie za kilka minut")
 
             } else {
                 setError("Wystąpił problem podczas logowania")
             }
 
-        } catch(err) {
+        } catch {
             setError("Coś poszło nie tak. Spróbuj ponownie");
         } finally {
             setLoading(false)

@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import { UserAuth } from '../Context/AuthContext';
+import { isValidEmail, MIN_PASSWORD_LENGTH } from '../utils/validation';
 
 const SignUpPage = () => {
-    const [email, setEmail] = useState(""); 
+    const [displayName, setDisplayName] = useState("");
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState(""); 
     const [confirmPassword, setConfirmPassword] = useState("")
     const [message, setMessage] = useState("")
@@ -18,12 +20,17 @@ const SignUpPage = () => {
         setError("")
         setMessage("")
 
+        if (!displayName.trim()) {
+            setError("Podaj nazwę wyświetlaną")
+            return
+        }
+
         if (!email.trim()) {
             setError("Podaj adres e-mail")
             return
         }
 
-        if (!email.includes("@")) {
+        if (!isValidEmail(email)) {
             setError("Nieprawidłowy format adresu e-mail")
             return
         }
@@ -33,8 +40,8 @@ const SignUpPage = () => {
             return
         }
 
-        if (password.length < 6) {
-            setError("Hasło musi mieć co najmniej 6 znaków")
+        if (password.length < MIN_PASSWORD_LENGTH) {
+            setError(`Hasło musi mieć co najmniej ${MIN_PASSWORD_LENGTH} znaków`)
             return
         }
 
@@ -53,7 +60,7 @@ const SignUpPage = () => {
         setLoading(true)
 
         try {
-            const result = await signUpNewUser(email, password)
+            const result = await signUpNewUser(email, password, displayName)
 
             if(result.success) {
                 if(result.data.session) {
@@ -68,11 +75,17 @@ const SignUpPage = () => {
             } else if(result.error.code === 'user_already_exists') {
                 setError("Konto z tym adresem e-mail już istnieje")
 
+            } else if (result.error.code === 'weak_password') {
+                setError("Hasło jest zbyt słabe. Użyj dłuższego hasła z literami i cyframi")
+
+            } else if (result.error.code === 'over_email_send_rate_limit') {
+                setError("Zbyt wiele prób rejestracji. Spróbuj ponownie za kilka minut")
+
             } else {
                 setError("Wystąpił problem podczas rejestracji")
             }
 
-        } catch(err) {
+        } catch {
             setError("Coś poszło nie tak. Spróbuj ponownie");
         } finally {
             setLoading(false)
@@ -89,7 +102,14 @@ const SignUpPage = () => {
                 </p>
 
                 <div className='flex flex-col py-4'>
-                    <input 
+                    <input
+                        value={displayName}
+                        onChange={(e) => setDisplayName(e.target.value)}
+                        placeholder='Nazwa wyświetlana'
+                        className='p-3 mt-6 border rounded'
+                        type='text'>
+                    </input>
+                    <input
                         value={email}
                         onChange={(e) => setEmail(e.target.value)} 
                         placeholder='Email' 
