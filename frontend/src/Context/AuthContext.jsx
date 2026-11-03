@@ -8,14 +8,14 @@ export const AuthContextProvider = ({children}) => {
 
     //Rejestracja
 
-    const signUpNewUser = async (email, password, displayName) => {
+    const signUpNewUser = async (email, password, displayName, redirectPath = '/dashboard') => {
         const { data, error }= await supabase.auth.signUp({
             email: email.trim(),
             password: password,
             options: {
                 // Trigger handle_new_user zapisuje display_name do tabeli profiles
                 data: { display_name: displayName.trim() },
-                emailRedirectTo: `${window.location.origin}/dashboard`,
+                emailRedirectTo: `${window.location.origin}${redirectPath}`,
             },
         });
 

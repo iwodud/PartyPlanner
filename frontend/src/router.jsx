@@ -6,6 +6,7 @@ import Dashboard from './components/Dashboard';
 import PrivateRoute from './components/PrivateRoute';
 import PublicRoute from './components/PublicRoute';
 import GroupPage from './components/GroupPage';
+import JoinGroupPage from './components/JoinGroupPage';
 
 export const router = createBrowserRouter([
     {path: "/", element: <App />},
@@ -30,6 +31,12 @@ export const router = createBrowserRouter([
     {path: "/groups/:id", element: (
             <PrivateRoute>
                 <GroupPage />
+            </PrivateRoute>
+        ),
+    },
+    {path: "/join/:code", element: (
+            <PrivateRoute>
+                <JoinGroupPage />
             </PrivateRoute>
         ),
     },

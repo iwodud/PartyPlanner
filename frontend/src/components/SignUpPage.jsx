@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { UserAuth } from '../Context/AuthContext';
 import { isValidEmail, MIN_PASSWORD_LENGTH } from '../utils/validation';
 
@@ -14,6 +14,8 @@ const SignUpPage = () => {
 
     const {signUpNewUser } = UserAuth();
     const navigate = useNavigate()
+    const location = useLocation()
+    const redirectTo = location.state?.from || '/dashboard'
 
     const handleSignUp = async (e) => {
         e.preventDefault()
@@ -60,11 +62,11 @@ const SignUpPage = () => {
         setLoading(true)
 
         try {
-            const result = await signUpNewUser(email, password, displayName)
+            const result = await signUpNewUser(email, password, displayName, redirectTo)
 
             if(result.success) {
                 if(result.data.session) {
-                    navigate('/dashboard') 
+                    navigate(redirectTo, { replace: true }) 
                 } else {
 
                     setMessage("Konto utworzone! Sprawdź skrzynkę e-mail, aby potwierdzić rejestrację.")
@@ -98,7 +100,7 @@ const SignUpPage = () => {
             <form onSubmit={handleSignUp} className='max-w-md m-auto pt-24'>
                 <h2 className='font-bold pb-2'>Rejestracja</h2>
                 <p>
-                    Masz już konto? <Link to='/signin' className="text-green-600 underline hover:text-green-800">Zaloguj się</Link>
+                    Masz już konto? <Link to='/signin' state={location.state} className="text-green-600 underline hover:text-green-800">Zaloguj się</Link>
                 </p>
 
                 <div className='flex flex-col py-4'>

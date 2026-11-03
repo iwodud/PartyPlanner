@@ -56,6 +56,13 @@ export const joinGroup = async (code) => {
     return data;
 };
 
+export const joinErrorMessage = (error) => {
+    if (error.message === 'invalid_invite_code') {
+        return "Nieprawidłowy kod zaproszenia. Sprawdź go albo poproś o nowy link";
+    }
+    return "Nie udało się dołączyć do grupy. Spróbuj ponownie";
+};
+
 export const leaveGroup = async (groupId) => {
     const { error } = await supabase.rpc('leave_group', { p_group_id: groupId });
     if (error) throw error;

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { UserAuth } from '../Context/AuthContext'
 import { Link, useNavigate } from "react-router"
-import { createGroup, fetchMyGroups } from '../Context/groupsApi';
+import { createGroup, fetchMyGroups, joinErrorMessage, joinGroup } from '../Context/groupsApi';
 
 const Dashboard = () => {
 const {session, signOut} = UserAuth();
@@ -14,6 +14,10 @@ const [groupsError, setGroupsError] = useState("");
 const [groupName, setGroupName] = useState("");
 const [createError, setCreateError] = useState("");
 const [creating, setCreating] = useState(false);
+
+const [inviteCode, setInviteCode] = useState("");
+const [joinError, setJoinError] = useState("");
+const [joining, setJoining] = useState(false);
 
 useEffect(() => {
     fetchMyGroups()
@@ -56,6 +60,28 @@ const handleCreateGroup = async (e) => {
         setCreateError("Nie udało się utworzyć grupy. Spróbuj ponownie");
     } finally {
         setCreating(false);
+    }
+};
+
+const handleJoinGroup = async (e) => {
+    e.preventDefault();
+    setJoinError("");
+
+    if (!inviteCode.trim()) {
+        setJoinError("Podaj kod zaproszenia");
+        return;
+    }
+
+    setJoining(true);
+
+    try {
+        const groupId = await joinGroup(inviteCode);
+        navigate(`/groups/${groupId}`);
+    } catch (error) {
+        console.error("Błąd dołączania do grupy: ", error);
+        setJoinError(joinErrorMessage(error));
+    } finally {
+        setJoining(false);
     }
 };
 
@@ -103,6 +129,24 @@ const handleCreateGroup = async (e) => {
                         Utwórz grupę
                     </button>
                     {createError && <p className="text-red-600 text-center pt-2">{createError}</p>}
+                </form>
+
+                <form onSubmit={handleJoinGroup} className="mt-6">
+                    <h3 className="font-bold mb-2">Dołącz do grupy</h3>
+                    <input
+                        value={inviteCode}
+                        onChange={(e) => setInviteCode(e.target.value)}
+                        placeholder="Kod zaproszenia"
+                        className="p-3 w-full border rounded font-mono uppercase"
+                        type="text">
+                    </input>
+                    <button
+                        type="submit"
+                        disabled={joining}
+                        className="mt-3 w-full border border-green-600 text-green-600 py-2 px-4 rounded-lg hover:bg-green-50 disabled:opacity-50 cursor-pointer">
+                        Dołącz
+                    </button>
+                    {joinError && <p className="text-red-600 text-center pt-2">{joinError}</p>}
                 </form>
 
                 <button
