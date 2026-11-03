@@ -1,0 +1,7 @@
+.env
+.env.local
+.env.*.local
+
+# Lokalny Supabase (pliki robocze CLI)
+supabase/.temp/
+supabase/.branches/
