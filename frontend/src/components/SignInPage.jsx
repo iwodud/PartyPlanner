@@ -1,29 +1,29 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { UserAuth } from '../Context/AuthContext';
+import { isValidEmail } from '../utils/validation';
 
-const SignUpPage = () => {
+const SignInPage = () => {
     const [email, setEmail] = useState(""); 
     const [password, setPassword] = useState(""); 
-    const [confirmPassword, setConfirmPassword] = useState("")
-    const [message, setMessage] = useState("")
     const [error, setError] = useState(""); 
     const [loading, setLoading] = useState(false); 
 
-    const {signUpNewUser } = UserAuth();
+    const { signInUser } = UserAuth();
     const navigate = useNavigate()
+    const location = useLocation()
+    const redirectTo = location.state?.from || '/dashboard'
 
-    const handleSignUp = async (e) => {
+    const handleSignIn = async (e) => {
         e.preventDefault()
         setError("")
-        setMessage("")
 
         if (!email.trim()) {
             setError("Podaj adres e-mail")
             return
         }
 
-        if (!email.includes("@")) {
+        if (!isValidEmail(email)) {
             setError("Nieprawidłowy format adresu e-mail")
             return
         }
@@ -32,47 +32,32 @@ const SignUpPage = () => {
             setError("Podaj hasło")
             return
         }
-
-        if (password.length < 6) {
-            setError("Hasło musi mieć co najmniej 6 znaków")
-            return
-        }
-
-        if (!confirmPassword) {
-            setError("Powtórz hasło")
-            return
-        }
         
-        
-        if (password !== confirmPassword) {
-            setError("Hasła nie są identyczne")
-            return
-        }
+
         
 
         setLoading(true)
 
         try {
-            const result = await signUpNewUser(email, password)
+            const result = await signInUser(email, password)
 
             if(result.success) {
-                if(result.data.session) {
-                    navigate('/dashboard') 
-                } else {
-
-                    setMessage("Konto utworzone! Sprawdź skrzynkę e-mail, aby potwierdzić rejestrację.")
-
-                }
-
+                    navigate(redirectTo, { replace: true }) 
             
-            } else if(result.error.code === 'user_already_exists') {
-                setError("Konto z tym adresem e-mail już istnieje")
+            } else if(result.error.code === 'invalid_credentials') {
+                setError("Nieprawidłowy e-mail lub hasło")
+
+            } else if (result.error.code === 'email_not_confirmed') {
+                setError("Adres e-mail nie został potwierdzony. Sprawdź skrzynkę.")
+
+            } else if (result.error.code === 'over_request_rate_limit') {
+                setError("Zbyt wiele prób logowania. Spróbuj ponownie za kilka minut")
 
             } else {
-                setError("Wystąpił problem podczas rejestracji")
+                setError("Wystąpił problem podczas logowania")
             }
 
-        } catch(err) {
+        } catch {
             setError("Coś poszło nie tak. Spróbuj ponownie");
         } finally {
             setLoading(false)
@@ -82,10 +67,10 @@ const SignUpPage = () => {
 
     return (
         <div>
-            <form onSubmit={handleSignUp} className='max-w-md m-auto pt-24'>
-                <h2 className='font-bold pb-2'>Rejestracja</h2>
+            <form onSubmit={handleSignIn} className='max-w-md m-auto pt-24'>
+                <h2 className='font-bold pb-2'>Logowanie</h2>
                 <p>
-                    Masz już konto? <Link to='/signin' className="text-green-600 underline hover:text-green-800">Zaloguj się</Link>
+                    Nie masz konta? <Link to='/signup' state={location.state} className="text-green-600 underline hover:text-green-800">Zarejestruj się</Link>
                 </p>
 
                 <div className='flex flex-col py-4'>
@@ -105,24 +90,14 @@ const SignUpPage = () => {
                         type='password'>
                     </input>
 
-                    <input 
-                        value={confirmPassword}
-                        onChange={(e) => setConfirmPassword(e.target.value)} 
-                        
-                        placeholder='Powtórz hasło' 
-                        className='p-3 mt-6 border rounded' 
-                        type='password'>
-                    </input>
-
                     <button
                         type='submit' 
                         disabled={loading} 
                         className="mt-6 w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 disabled:opacity-50" 
                     >
-                        Zarejestruj
+                        Zaloguj
                     </button> 
                     {error && <p className="text-red-600 text-center pt-4">{error}</p>}
-                    {message && <p className="text-green-600 text-center pt-4">{message}</p>}
                 </div>
 
             </form>
@@ -130,4 +105,4 @@ const SignUpPage = () => {
     )
 }
 
-export default SignUpPage
+export default SignInPage
