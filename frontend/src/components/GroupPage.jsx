@@ -115,7 +115,12 @@ const GroupPage = () => {
                 ) : (
                     <>
                         <h1 className="text-2xl font-bold mt-4 mb-4">{group.name}</h1>
-
+                        <Link 
+                            to={`/groups/${id}/calendar`} 
+                            className="flex items-center justify-center w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg shadow-md hover:bg-blue-700 transition mb-6 cursor-pointer"
+                        >
+                            <span className="text-xl mr-2">📅</span> Otwórz kalendarz grupy
+                        </Link>
                         <h3 className="font-bold mb-2">Zaproś znajomych</h3>
                         <p className="text-gray-600 text-sm">Kod zaproszenia:</p>
                         <p className="font-mono text-xl tracking-widest">{group.invite_code}</p>
