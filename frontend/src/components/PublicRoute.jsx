@@ -7,7 +7,7 @@ const PublicRoute = ({ children }) => {
     const location = useLocation();
 
     if (session === undefined) {
-        return <p>Ładowanie..</p>;
+        return <p className="text-center pt-24">Ładowanie...</p>;
     }
 
     return session ? <Navigate to={location.state?.from || "/dashboard"} replace /> : children;
